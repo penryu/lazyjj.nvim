@@ -4,37 +4,34 @@ local M = {}
 
 local function open_floating_window()
 	-- Get plenary's float window module which handles window creation
-	local plenary = require("plenary.window.float")
+	local plenary = require('plenary.window.float')
 
 	-- Create centered floating window at 90% of screen size with rounded borders
-	local win = plenary.percentage_range_window(0.9, 0.8, {
-		border = {
-			"╭",
-			"─",
-			"╮",
-			"│",
-			"│",
-			"╰",
-			"─",
-			"╯",
-		},
-	})
+	local border_opts = {
+		topleft = '╭',
+		topright = '╮',
+		top = '─',
+		left = '│',
+		right = '│',
+		botleft = '╰',
+		bot = '─',
+		botright = '╯',
+	}
+	local win = plenary.percentage_range_window(0.90, 0.85, {}, border_opts)
 
 	-- Set buffer filetype for syntax highlighting
-	vim.bo[win.bufnr].filetype = "lazyjj"
+	vim.bo[win.bufnr].filetype = 'lazyjj'
 
 	-- Ensure window is completely opaque
 	vim.wo[win.win_id].winblend = 0
 
 	-- Hide buffer when window closes rather than delete it
-	vim.cmd("setlocal bufhidden=hide")
+	vim.cmd('setlocal bufhidden=hide')
 
 	-- Automatically hide window when focus is lost
-	vim.api.nvim_create_autocmd("WinLeave", {
+	vim.api.nvim_create_autocmd('WinLeave', {
 		buffer = win.bufnr,
-		callback = function()
-			vim.cmd("hide")
-		end,
+		callback = function() vim.cmd('hide') end,
 		once = true,
 	})
 
@@ -44,30 +41,32 @@ end
 
 function M.setup(opts)
 	-- Store user config for later use
-	M.config = vim.tbl_deep_extend("force", {
+	M.config = vim.tbl_deep_extend('force', {
 		-- Default configuration options can go here
-		mapping = "<leader>jj", -- Default keymapping
+		bin = 'lazyjj',
+		command = 'JJ',
+		mapping = '<leader>jj', -- Default keymapping
 	}, opts or {})
 
 	-- Create user command
-	vim.api.nvim_create_user_command("LazyJJ", M.open, {})
+	vim.api.nvim_create_user_command(M.config.command, M.open, {})
 
 	-- Set up keymapping if provided
 	if M.config.mapping then
-		vim.keymap.set("n", M.config.mapping, M.open, {
+		vim.keymap.set('n', M.config.mapping, M.open, {
 			noremap = true,
 			silent = true,
-			desc = "LazyJJ", -- This will work with WhichKey and similar plugins
+			desc = 'Open ' .. M.config.bin, -- This will work with WhichKey and similar plugins
 		})
 	end
 end
 
 function M.open()
-	-- Store current window ID for late    -- Check if lazyjj is available
-	local cmd = "lazyjj"
+	-- Store current window ID for late    -- Check if command is available
+	local cmd = M.config.bin
 	if vim.fn.executable(cmd) ~= 1 then
 		vim.notify(
-			"lazyjj executable not found. Please install lazyjj and ensure it's in your PATH.",
+			cmd .. " executable not found. Please install " .. cmd .. " and ensure it's in your PATH.",
 			vim.log.levels.ERROR
 		)
 		return
@@ -89,15 +88,17 @@ function M.open()
 		-- Handle potential errors
 		on_stderr = function(_, data)
 			for _, line in ipairs(data) do
-				if line:match("^Error:.*") then
-					vim.notify("lazyjj error: " .. line, vim.log.levels.ERROR)
+				if line:match('^Error:.*') then
+					vim.notify(cmd .. ' error: ' .. line, vim.log.levels.ERROR)
 				end
 			end
 		end,
 	})
 
 	-- Enter insert mode to allow immediate interaction
-	vim.cmd("startinsert")
+	vim.cmd('startinsert')
 end
 
 return M
+
+-- vim: set sw=4 ts=4 sts=4 noexpandtab :

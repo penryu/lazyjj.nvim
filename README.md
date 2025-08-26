@@ -15,7 +15,7 @@ Using [packer.nvim](https://github.com/wbthomason/packer.nvim):
 
 ```lua
 use {
-    'swaits/lazyjj.nvim',
+    'penryu/lazyjj.nvim',
     requires = 'nvim-lua/plenary.nvim',
     config = function()
         require('lazyjj').setup()
@@ -27,7 +27,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-    'swaits/lazyjj.nvim',
+    'penryu/lazyjj.nvim',
     dependencies = 'nvim-lua/plenary.nvim',
     opts = {}
 }
@@ -39,6 +39,7 @@ The plugin can be configured by passing options to the setup function:
 
 ```lua
 require('lazyjj').setup({
+    cmd = 'lazyjj',         -- override the default command
     mapping = '<leader>jj'  -- Change the default keymap
 })
 ```
@@ -47,9 +48,10 @@ Or when using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ```lua
 {
-    'swaits/lazyjj.nvim',
+    'penryu/lazyjj.nvim',
     dependencies = 'nvim-lua/plenary.nvim',
     opts = {
+      cmd = 'lazyjj',         -- override the default command
       mapping = '<leader>jj'
     }
 }
